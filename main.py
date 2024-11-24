@@ -46,3 +46,5 @@ if len(messages) > 0:
     # 將所有訊息合併後發送
     final_message = "\n\n".join(messages)  # 多支股票訊息間加空行
     push_message_api(args.token, args.user_id, final_message)  # 傳送訊息
+else:
+    print("沒有 J < 0 的項目")
