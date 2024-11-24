@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 def get_twstockData(sid):
     ## update db
-    twstock.__update_codes()
+    # twstock.__update_codes()
 
     # 取得XXX股票資料
     stock = twstock.Stock(sid)
@@ -49,6 +49,6 @@ def get_twstockData(sid):
     df['date'] = pd.to_datetime(df['date'])
 
     # 顯示結果
-    # print(df[['date', 'close', 'K', 'D', 'J']].tail(1))  # 顯示最後1天的 KDJ 值，日期為今天
+    print(df[['date', 'close', 'K', 'D', 'J']].tail(1))  # 顯示最後1天的 KDJ 值，日期為今天
     return df[['date', 'close', 'K', 'D', 'J']].tail(1)
 
