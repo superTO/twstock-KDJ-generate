@@ -1,5 +1,5 @@
 from calculate_KDJ import get_twstockData
-from line_message import push_message_api
+from line_message import broadcast_message_api, push_message_api
 import argparse
 
 # 從檔案中讀取股票代碼
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     # 使用 argparse 解析命令列參數
     parser = argparse.ArgumentParser(description="LINE Bot Message Sender")
     parser.add_argument("--token", required=True, help="LINE Channel Access Token")
-    parser.add_argument("--user_id", required=True, help="LINE User ID")
+    # parser.add_argument("--user_id", required=True, help="LINE User ID")
 
     args = parser.parse_args()
 
@@ -45,6 +45,9 @@ for stock_code in stock_list:
 if len(messages) > 0:
     # 將所有訊息合併後發送
     final_message = "\n\n".join(messages)  # 多支股票訊息間加空行
-    push_message_api(args.token, args.user_id, final_message)  # 傳送訊息
+    ## 只傳給一個人
+    # push_message_api(args.token, args.user_id, final_message)
+    ## 傳給所有好友
+    broadcast_message_api(args.token, final_message)
 else:
     print("沒有 J < 0 的項目")

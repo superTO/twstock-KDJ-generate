@@ -27,4 +27,4 @@ jobs:
 
       - name: Run Python script to send LINE message
         run: |
-          python main.py --token ${{ secrets.CHANNEL_ACCESS_TOKEN }} --user_id ${{ secrets.USERID }}
+          python main.py --token ${{ secrets.CHANNEL_ACCESS_TOKEN }}
