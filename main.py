@@ -1,6 +1,8 @@
 from calculate_KDJ import get_twstockData
 from line_message import broadcast_message_api, push_message_api
 import argparse
+from datetime import datetime
+import sys
 
 # 從檔案中讀取股票代碼
 def read_stock_list(file_path):
@@ -30,6 +32,10 @@ for stock_code in stock_list:
     
     # 將 numpy.datetime64 轉換為字串，格式化為 YYYY-MM-DD
     date_str = str(last_row['date'].values[0])[:10]
+    today = datetime.today().strftime('%Y-%m-%d')
+    # 避免重複發送訊息(ex: 228沒開盤, 但因為排程是周一至周五執行, 導致228重複推送227的資訊)
+    if today != date_str:
+        sys.exit()  # 提前終止程式
     
     if last_row['J'].values[0] < 0:
         # 格式化資料，加入股票代號
