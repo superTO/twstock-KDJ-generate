@@ -13,4 +13,4 @@ jobs:
       - uses: actions/checkout@v4
       # - step 2
       # - step n, use it as the last step
-      - uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
+      - uses: gautamkrishnar/keepalive-workflow@2.0.10 # using the workflow with default settings
