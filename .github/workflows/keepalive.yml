@@ -1,16 +1,25 @@
-name: Github Action with a cronjob trigger
+name: Keepalive Workflow
+
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 0 1 * *"
-permissions:
-  actions: write
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
 jobs:
-  cronjob-based-github-action:
-    name: Cronjob based github action
+  keepalive:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      # - step 2
-      # - step n, use it as the last step
-      - uses: gautamkrishnar/keepalive-workflow@2.0.10 # using the workflow with default settings
+      - name: Checkout keepalive branch
+        uses: actions/checkout@v4
+        with:
+          ref: keepalive
+
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push empty commit
+        run: |
+          git commit --allow-empty -m "chore: keepalive" || echo "Nothing to commit"
+          git push https://x-access-token:${{ secrets.PAT_PUSH }}@github.com/superTO/twstock-KDJ-generate.git keepalive
