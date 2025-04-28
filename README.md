@@ -19,3 +19,9 @@ python_version = "3.9"
 
 ## 請注意
 - PowerShell exports files in UTF-16 LE by default, which may not display correctly on GitHub; you need to convert them to UTF-8.
+
+
+## keepalive.yml
+
+原因: Scheduled workflows are disabled automatically after 60 days of repository inactivity.
+解決辦法: 固定每個月1號, 在 keepalive 分支建立空的 commit 並 push, 以此來規避60天程式碼沒有更新的問題.
