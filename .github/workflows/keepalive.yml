@@ -1,3 +1,4 @@
+# This workflow ensures that cronjob workflows are not automatically disabled after 60 days of repo inactivity.
 name: Keepalive Workflow
 
 on:
