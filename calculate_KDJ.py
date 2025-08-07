@@ -49,6 +49,7 @@ def get_twstockData(sid):
     df['date'] = pd.to_datetime(df['date'])
 
     # 顯示結果
+    print('----' + sid + '----')
     print(df[['date', 'close', 'K', 'D', 'J']].tail(1))  # 顯示最後1天的 KDJ 值，日期為今天
     return df[['date', 'close', 'K', 'D', 'J']].tail(1)
 
