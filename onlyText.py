@@ -1,6 +1,4 @@
 from calculate_KDJ import get_twstockData
-from line_message import broadcast_message_api, push_message_api
-from datetime import datetime
 
 # 從檔案中讀取股票代碼
 def read_stock_list(file_path):
@@ -19,7 +17,6 @@ messages = []
 for stock_code in stock_list:
     last_row = get_twstockData(stock_code)  # 獲取股票資料
     
-    # 將 numpy.datetime64 轉換為字串，格式化為 YYYY-MM-DD
     date_str = str(last_row['Date'].values[0])[:10]
     # today = datetime.today().strftime('%Y-%m-%d')
     
@@ -36,9 +33,6 @@ for stock_code in stock_list:
 if len(messages) > 0:
     # 將所有訊息合併後發送
     final_message = "\n\n".join(messages)  # 多支股票訊息間加空行
-    ## 只傳給一個人
-    # push_message_api(args.token, args.user_id, final_message)
-    ## 傳給所有好友
-    # broadcast_message_api(args.token, final_message)
+    print(final_message)
 else:
     print("沒有 J < 0 的項目")
