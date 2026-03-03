@@ -1,55 +1,40 @@
-import twstock
-import pandas as pd
-from datetime import datetime, timedelta
+import yfinance as yf
 
 def get_twstockData(sid):
-    ## update db
-    # twstock.__update_codes()
+    # 抓取近 3 個月的資料 (確保 KDJ 平滑計算有足夠的緩衝空間)
+    df = yf.download(sid, period="3mo", progress=False, multi_level_index=False)
+    
+    if df.empty:
+        print(f"找不到 {sid} 的資料，請確認代號是否正確。")
+        return None
 
-    # 取得XXX股票資料
-    stock = twstock.Stock(sid)
-
-    # 計算 60 天前的日期
-    start_date = datetime.today() - timedelta(days=60)  # 計算 60 天前的日期
-
-    # 轉換為 'YYYY-MM-DD' 格式，這樣可以傳入 `fetch_from()` 函數
-    start_year = start_date.year
-    start_month = start_date.month
-
-    # 從 60 天前開始抓取資料
-    df = pd.DataFrame(stock.fetch_from(start_year, start_month))
-
-    # 設定 N 值（通常為 9）
+    # yfinance 回傳的欄位開頭大寫：Open, High, Low, Close
     N = 9
-
-    # 計算 RSV (Raw Stochastic Value)
-    high = df['high']
-    low = df['low']
-    close = df['close']
-
-    # 計算 N 日內的最高價、最低價
-    high_roll = high.rolling(window=N).max()
-    low_roll = low.rolling(window=N).min()
-
+    
     # 計算 RSV
-    RSV = (close - low_roll) / (high_roll - low_roll) * 100
+    low_roll = df['Low'].rolling(window=N).min()
+    high_roll = df['High'].rolling(window=N).max()
+    
+    # 計算 RSV (避免最高等於最低時產生的錯誤)
+    df['RSV'] = (df['Close'] - low_roll) / (high_roll - low_roll) * 100
+    df['RSV'] = df['RSV'].fillna(50) # 預設值
 
-    # 計算 K 和 D
-    K = RSV.ewm(com=2).mean()  # 使用指數加權移動平均
-    D = K.ewm(com=2).mean()
-
+    # 計算 K, D (使用指數加權移動平均 ewm)
+    # adjust=False 是為了符合遞歸公式：今日K = 2/3 * 昨日K + 1/3 * 今日RSV
+    df['K'] = df['RSV'].ewm(com=2, adjust=False).mean()
+    df['D'] = df['K'].ewm(com=2, adjust=False).mean()
+    
     # 計算 J 值
-    J = 3 * K - 2 * D
+    df['J'] = 3 * df['K'] - 2 * df['D']
 
-    # 把結果輸出並將日期改為今天
-    df['K'] = K
-    df['D'] = D
-    df['J'] = J
-    # 轉換日期欄位
-    df['date'] = pd.to_datetime(df['date'])
+    # 將 Date 索引轉換為一般欄位
+    df.reset_index(inplace=True)
 
-    # 顯示結果
-    print('----' + sid + '----')
-    print(df[['date', 'close', 'K', 'D', 'J']].tail(1))  # 顯示最後1天的 KDJ 值，日期為今天
-    return df[['date', 'close', 'K', 'D', 'J']].tail(1)
+    print(f'---- {sid} (yfinance) ----')
+    result = df[['Date', 'Close', 'K', 'D', 'J']].tail(1) # 顯示最後1天的 KDJ 值，日期為今天
+    print(result)
+    
+    return result
 
+# test
+# get_twstockData('2812.TW')

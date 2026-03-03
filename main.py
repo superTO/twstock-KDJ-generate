@@ -26,12 +26,10 @@ stock_list = read_stock_list(stock_file)
 # 儲存所有訊息
 messages = []
 
-# 遍歷股票代碼，處理每一隻股票
 for stock_code in stock_list:
     last_row = get_twstockData(stock_code)  # 獲取股票資料
     
-    # 將 numpy.datetime64 轉換為字串，格式化為 YYYY-MM-DD
-    date_str = str(last_row['date'].values[0])[:10]
+    date_str = str(last_row['Date'].values[0])[:10]
     today = datetime.today().strftime('%Y-%m-%d')
     # 避免重複發送訊息(ex: 228沒開盤, 但因為排程是周一至周五執行, 導致228重複推送227的資訊)
     if today != date_str:
