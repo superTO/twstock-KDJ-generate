@@ -1,7 +1,7 @@
 from calculate_KDJ import get_twstockData
 from line_message import broadcast_message_api, push_message_api
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 
 # 從檔案中讀取股票代碼
@@ -28,12 +28,23 @@ messages = []
 
 for stock_code in stock_list:
     last_row = get_twstockData(stock_code)  # 獲取股票資料
-    
-    date_str = str(last_row['Date'].values[0])[:10]
-    today = datetime.today().strftime('%Y-%m-%d')
     # 避免重複發送訊息(ex: 228沒開盤, 但因為排程是周一至周五執行, 導致228重複推送227的資訊)
-    if today != date_str:
-        sys.exit()  # 提前終止程式
+    date_str = str(last_row['Date'].values[0])[:10]
+    today = datetime.today()
+
+    # 決定目標偏移天數 (Target Offset)
+    # 如果是台股：目標就是今天 (0)
+    # 如果是美股：週一執行目標是 3 天前 (週五)；其餘日子目標是 1 天前
+    if ".TW" in stock_code:
+        offset = 0
+    else:
+        offset = 3 if today.weekday() == 0 else 1
+
+    # 統一比對並執行
+    target_date = (today - timedelta(days=offset)).strftime('%Y-%m-%d')
+
+    if date_str != target_date:
+        sys.exit()
     
     if last_row['J'].values[0] < 0:
         # 格式化資料，加入股票代號
