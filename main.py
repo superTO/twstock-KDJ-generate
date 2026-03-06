@@ -50,7 +50,7 @@ for stock_code in stock_list:
         # 格式化資料，加入股票代號
         message = (f"Stock: {stock_code}\n"
                    f"Date: {date_str}\n"
-                   f"Close: {last_row['close'].values[0]}\n"
+                   f"Close: {last_row['Close'].values[0]}\n"
                    f"K: {round(last_row['K'].values[0], 2)}\n"
                    f"D: {round(last_row['D'].values[0], 2)}\n"
                    f"J: {round(last_row['J'].values[0], 2)}")
