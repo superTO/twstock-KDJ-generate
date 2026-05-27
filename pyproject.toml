@@ -1,0 +1,10 @@
+[project]
+name = "twstock-kdj-generate"
+version = "1.1.0"
+description = "透過 github action 執行, 抓取 Yahoo Finance 股票資訊, 計算KDJ 最後 LINE 通知"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.32.5",
+    "yfinance>=1.2.0",
+]
