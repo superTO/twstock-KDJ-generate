@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from calculate_KDJ import get_twstockData
 from line_message import broadcast_message_api, push_message_api
 
@@ -34,25 +34,32 @@ def main():
     # 儲存所有訊息
     messages = []
 
+    # 取得台灣時間 (UTC+8)
+    tw_tz = timezone(timedelta(hours=8))
+    today_tw = datetime.now(tw_tz).date()
+    tw_weekday = today_tw.weekday()
+
     for stock_code in stock_list:
         last_row = get_twstockData(stock_code)  # 獲取股票資料
-        # 避免重複發送訊息(ex: 228沒開盤, 但因為排程是周一至周五執行, 導致228重複推送227的資訊)
+        if last_row is None or last_row.empty:
+            continue
+
         date_str = str(last_row['Date'].values[0])[:10]
-        today = datetime.today()
+        row_date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-        # 決定目標偏移天數 (Target Offset)
-        # 如果是台股：目標就是今天 (0)
-        # 如果是美股：週一執行目標是 3 天前 (週五)；其餘日子目標是 1 天前
+        # 避免重複發送訊息 (例如沒開盤時重複推送舊資訊)
         if ".TW" in stock_code:
-            offset = 0
+            # 台股：最新資料日期必須為今日
+            if row_date != today_tw:
+                print(f"[{stock_code}] 最新資料日期 ({date_str}) 非今日 ({today_tw})，跳過。")
+                continue
         else:
-            offset = 3 if today.weekday() == 0 else 1
-
-        # 統一比對並執行
-        target_date = (today - timedelta(days=offset)).strftime('%Y-%m-%d')
-
-        if date_str != target_date:
-            sys.exit()
+            # 美股：若開盤前執行為前一交易日 (週一為前3天週五，其餘平日為前1天)；若開盤後執行則為今日
+            expected_prev = today_tw - timedelta(days=3 if tw_weekday == 0 else 1)
+            # 容許為今日、預期前一交易日，或 4 天內之有效交易日 (涵蓋連假)
+            if row_date != today_tw and row_date != expected_prev and (today_tw - row_date).days > 4:
+                print(f"[{stock_code}] 最新資料日期 ({date_str}) 過舊，跳過。")
+                continue
         
         if last_row['J'].values[0] < 0:
             # 格式化資料，加入股票代號
