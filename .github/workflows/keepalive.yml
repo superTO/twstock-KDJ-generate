@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: keepalive
+          token: ${{ secrets.PAT_PUSH }}
 
       - name: Setup Git
         run: |
@@ -29,4 +30,4 @@ jobs:
       - name: Create and push empty commit
         run: |
           git commit --allow-empty -m "chore: keepalive" || echo "Nothing to commit"
-          git push https://x-access-token:${{ secrets.PAT_PUSH }}@github.com/superTO/twstock-KDJ-generate.git keepalive
+          git push origin keepalive

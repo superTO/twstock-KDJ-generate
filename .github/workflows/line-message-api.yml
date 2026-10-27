@@ -9,16 +9,16 @@ jobs:
   line-notify-send-message:
     # Assign GitHub Environments
     environment: line-message-api
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9.20'  # 使用 Python 3.9.20
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -26,5 +26,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Python script to send LINE message
+        env:
+          CHANNEL_ACCESS_TOKEN: ${{ secrets.CHANNEL_ACCESS_TOKEN }}
         run: |
-          python main.py --token ${{ secrets.CHANNEL_ACCESS_TOKEN }}
+          python main.py
